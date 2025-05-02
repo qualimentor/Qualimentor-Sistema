@@ -1,0 +1,7 @@
+# Configuração do ESLint para ignorar avisos específicos
+{
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "off"
+  }
+}

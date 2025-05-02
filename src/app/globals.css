@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Google Fonts (Montserrat and Open Sans) */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap");
+
+@layer base {
+  :root {
+    /* Define font variables */
+    --font-primary: "Montserrat", sans-serif;
+    --font-secondary: "Open Sans", sans-serif;
+
+    /* Define CSS variables for colors */
+    --turquoise: #2A9285;
+    --green-leaf: #76B947;
+    --dark-green: #2A9285;
+    --gray: #4B4F56;
+    --light-beige: #F5F2EA;
+    --white: #FFFFFF;
+    --light-turquoise: #3AAFA0;
+    --light-green: #8BC95B;
+    --dark-gray: #3A4247;
+    --light-gray: #E5E5E5;
+    --mentor-blue: #3B82F6;
+    --insight-green: #10B981;
+    --auditor-purple: #8B5CF6;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* --- PURE CSS - NO @apply --- */
+  body {
+    font-family: var(--font-secondary);
+    color: var(--gray);
+    background-color: var(--white);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary);
+    color: var(--dark-green);
+    font-weight: 600; /* font-semibold */
+    margin-bottom: 1.25rem; /* mb-5 */
+  }
+
+  /* Removed @apply for sizes - apply size classes directly in components */
+  /* h1 { font-size: 2.25rem; line-height: 2.5rem; } /* text-4xl */
+  /* h2 { font-size: 1.875rem; line-height: 2.25rem; } /* text-3xl */
+  /* h3 { font-size: 1.5rem; line-height: 2rem; } /* text-2xl */
+  /* h4 { font-size: 1.25rem; line-height: 1.75rem; } /* text-xl */
+  /* h5 { font-size: 1.125rem; line-height: 1.75rem; } /* text-lg */
+  /* h6 { font-size: 1rem; line-height: 1.5rem; } /* text-base */
+
+  p {
+    margin-bottom: 1.25rem; /* mb-5 */
+  }
+
+  a {
+    color: var(--turquoise);
+    transition-property: color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+
+  a:hover {
+    color: var(--light-turquoise);
+  }
+
+  /* Basic button styling (can be extended with @apply in components if needed) */
+  /* Note: It's generally better to define btn styles using @apply in @layer components */
+  /* or directly in components, but applying pure CSS here for safety */
+  .btn {
+    font-family: var(--font-primary);
+    display: inline-block;
+    padding-left: 2rem; /* px-8 */
+    padding-right: 2rem; /* px-8 */
+    padding-top: 0.75rem; /* py-3 */
+    padding-bottom: 0.75rem; /* py-3 */
+    border-radius: 9999px; /* rounded-full */
+    font-weight: 500; /* font-medium */
+    text-align: center;
+    cursor: pointer;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+    border-style: none;
+    font-size: 1rem; /* text-base */
+    line-height: 1.5rem; /* text-base line height */
+  }
+
+  .btn-primary {
+    background-color: var(--turquoise);
+    color: var(--white);
+  }
+  .btn-primary:hover {
+    background-color: var(--light-turquoise);
+    color: var(--white);
+  }
+
+  .btn-secondary {
+    background-color: var(--green-leaf);
+    color: var(--white);
+  }
+  .btn-secondary:hover {
+    background-color: var(--light-green);
+    color: var(--white);
+  }
+  /* --- END PURE CSS --- */
+}
+
