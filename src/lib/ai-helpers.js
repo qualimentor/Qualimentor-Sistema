@@ -6,13 +6,6 @@ const openai = new OpenAI({
   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
 });
 
-// GPT IDs for each specialized module
-const GPT_IDS = {
-  MENTOR_IA: process.env.NEXT_PUBLIC_GPT_MENTOR_ID || 'default',
-  INSIGHT_IA: process.env.NEXT_PUBLIC_GPT_INSIGHT_ID || 'default',
-  AUDITOR_IA: process.env.NEXT_PUBLIC_GPT_AUDITOR_ID || 'default'
-};
-
 /**
  * Analyze non-conformities using Mentor-IA GPT
  * @param {Object|string} data - Non-conformity data to analyze
@@ -24,8 +17,10 @@ export async function analyzeMentorIA(data) {
       ? data 
       : `Analise a seguinte não conformidade e sugira ações corretivas e preventivas de acordo com a ISO 15189 e RDC 786/2023:\n\n${JSON.stringify(data, null, 2)}`;
     
+    const mentorModel = process.env.NEXT_PUBLIC_GPT_MENTOR_ID || 'gpt-4-turbo';
+
     const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo", // Will be replaced with GPT Team ID when available
+      model: mentorModel,
       messages: [
         {
           role: "system",
@@ -37,8 +32,6 @@ export async function analyzeMentorIA(data) {
         }
       ],
       temperature: 0.7,
-      // When GPT Team API is available, add:
-      // gpt_id: GPT_IDS.MENTOR_IA,
     });
 
     return response.choices[0].message.content;
@@ -59,8 +52,10 @@ export async function analyzeInsightIA(data) {
       ? data 
       : `Analise os seguintes indicadores de qualidade e identifique tendências, oportunidades de melhoria e recomendações:\n\n${JSON.stringify(data, null, 2)}`;
     
+    const insightModel = process.env.NEXT_PUBLIC_GPT_INSIGHT_ID || 'gpt-4-turbo';
+
     const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo", // Will be replaced with GPT Team ID when available
+      model: insightModel,
       messages: [
         {
           role: "system",
@@ -72,8 +67,6 @@ export async function analyzeInsightIA(data) {
         }
       ],
       temperature: 0.7,
-      // When GPT Team API is available, add:
-      // gpt_id: GPT_IDS.INSIGHT_IA,
     });
 
     return response.choices[0].message.content;
@@ -94,8 +87,10 @@ export async function analyzeAuditorIA(data) {
       ? data 
       : `Analise o seguinte documento e verifique sua conformidade com as normas aplicáveis, identificando possíveis melhorias:\n\n${JSON.stringify(data, null, 2)}`;
     
+    const auditorModel = process.env.NEXT_PUBLIC_GPT_AUDITOR_ID || 'gpt-4-turbo';
+
     const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo", // Will be replaced with GPT Team ID when available
+      model: auditorModel,
       messages: [
         {
           role: "system",
@@ -107,8 +102,6 @@ export async function analyzeAuditorIA(data) {
         }
       ],
       temperature: 0.7,
-      // When GPT Team API is available, add:
-      // gpt_id: GPT_IDS.AUDITOR_IA,
     });
 
     return response.choices[0].message.content;
