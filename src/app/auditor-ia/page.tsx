@@ -229,7 +229,7 @@ export default function AuditorIAPage() {
                   
                   <div className="space-y-4 mb-6">
                     <p className="text-gray-600 text-sm">
-                      Após enviar um documento, clique em "Analisar" para obter uma análise de conformidade e sugestões.
+                      Após enviar um documento, clique em &quot;Analisar&quot; para obter uma análise de conformidade e sugestões.
                     </p>
                     
                     {/* Document info for analysis */}

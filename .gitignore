@@ -43,3 +43,6 @@ pnpm-debug.log*
 
 # Turbo
 .turbo
+
+# Firebase service account
+scripts/serviceAccount.prod.json

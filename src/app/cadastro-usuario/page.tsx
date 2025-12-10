@@ -104,7 +104,169 @@ export default function CadastroUsuarioPage() {
 
   return (
     <ProtectedRoute>
-      {/* ...interface mantida como antes, sem alterações... */}
+      <div className="min-h-screen bg-gray-100">
+        <div className="mx-auto max-w-5xl py-10 px-4 sm:px-6 lg:px-8">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">Cadastro de Usuários</h1>
+            <p className="text-gray-600">Registre novos usuários e faça upload da documentação necessária.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6 rounded-lg bg-white p-6 shadow">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div>
+                <label htmlFor="nome" className="block text-sm font-medium text-gray-700">
+                  Nome completo
+                </label>
+                <input
+                  id="nome"
+                  name="nome"
+                  type="text"
+                  value={formData.nome}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  E-mail
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="cpf" className="block text-sm font-medium text-gray-700">
+                  CPF
+                </label>
+                <input
+                  id="cpf"
+                  name="cpf"
+                  type="text"
+                  value={formData.cpf}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="dataNascimento" className="block text-sm font-medium text-gray-700">
+                  Data de nascimento
+                </label>
+                <input
+                  id="dataNascimento"
+                  name="dataNascimento"
+                  type="date"
+                  value={formData.dataNascimento}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="telefone" className="block text-sm font-medium text-gray-700">
+                  Telefone
+                </label>
+                <input
+                  id="telefone"
+                  name="telefone"
+                  type="tel"
+                  value={formData.telefone}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="cargo" className="block text-sm font-medium text-gray-700">
+                  Cargo
+                </label>
+                <input
+                  id="cargo"
+                  name="cargo"
+                  type="text"
+                  value={formData.cargo}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="perfil" className="block text-sm font-medium text-gray-700">
+                  Perfil
+                </label>
+                <select
+                  id="perfil"
+                  name="perfil"
+                  value={formData.perfil}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                >
+                  <option value="analista">Analista</option>
+                  <option value="gestor">Gestor</option>
+                  <option value="administrador">Administrador</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div>
+                <label htmlFor="diploma" className="block text-sm font-medium text-gray-700">
+                  Diploma (opcional)
+                </label>
+                <input
+                  id="diploma"
+                  name="diploma"
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={handleDiplomaChange}
+                  className="mt-1 block w-full text-sm text-gray-700"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="documentos-extras" className="block text-sm font-medium text-gray-700">
+                  Documentos extras (opcional)
+                </label>
+                <input
+                  id="documentos-extras"
+                  name="documentos-extras"
+                  type="file"
+                  multiple
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={handleDocumentosExtrasChange}
+                  className="mt-1 block w-full text-sm text-gray-700"
+                />
+              </div>
+            </div>
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            {success && <p className="text-sm text-green-600">{success}</p>}
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={loading}
+                className="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? 'Cadastrando...' : 'Cadastrar usuário'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </ProtectedRoute>
   );
 }
