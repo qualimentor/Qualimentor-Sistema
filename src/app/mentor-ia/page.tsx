@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { useUserRole } from '@/context/UserRoleContext';
 // Remove direct AI helper import: import { analyzeMentorIA } from '@/lib/ai-helpers';
 
 export default function MentorIAPage() {
-  const { hasPermission } = useUserRole();
+  const { hasPermission } = useUserRole() as { hasPermission: (requiredRole: string) => boolean };
   const [nonConformity, setNonConformity] = useState({
     description: '',
     area: '',
@@ -18,7 +18,7 @@ export default function MentorIAPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState('');
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNonConformity((prev) => ({ ...prev, [name]: value }));
   };
@@ -45,9 +45,9 @@ export default function MentorIAPage() {
       const result = await response.json();
       setAnalysisResult(result.analysis);
 
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Error calling /api/mentor-ia:", err);
-      setError(err.message || 'Erro ao analisar ocorrência.');
+      setError(err instanceof Error ? err.message : 'Erro ao analisar ocorrência.');
     } finally {
       setAnalyzing(false);
     }
@@ -137,4 +137,3 @@ export default function MentorIAPage() {
     </ProtectedRoute>
   );
 }
-

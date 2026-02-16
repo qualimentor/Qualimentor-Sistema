@@ -1,110 +1,34 @@
 'use client';
 
-import { useState } from 'react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { useUserRole } from '@/context/UserRoleContext';
-import { useAuth } from '@/context/AuthContext';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db, storage } from '@/lib/firebase-server';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function CadastroUsuarioPage() {
-  const { hasPermission } = useUserRole();
-  const { user } = useAuth();
-  const [formData, setFormData] = useState({
-    nome: '',
-    email: '',
-    cpf: '',
-    dataNascimento: '',
-    telefone: '',
-    cargo: '',
-    perfil: 'analista',
-  });
-  const [diploma, setDiploma] = useState(null);
-  const [documentosExtras, setDocumentosExtras] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleDiplomaChange = (e) => {
-    if (e.target.files[0]) {
-      setDiploma(e.target.files[0]);
-    }
-  };
-
-  const handleDocumentosExtrasChange = (e) => {
-    if (e.target.files) {
-      setDocumentosExtras(Array.from(e.target.files));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!hasPermission('administrador')) {
-      setError('Você não tem permissão para cadastrar usuários.');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      let diplomaUrl = '';
-      if (diploma) {
-        const diplomaRef = ref(storage, `usuarios/diplomas/${Date.now()}_${diploma.name}`);
-        await uploadBytes(diplomaRef, diploma);
-        diplomaUrl = await getDownloadURL(diplomaRef);
-      }
-
-      const documentosUrls = [];
-      for (const doc of documentosExtras) {
-        const docRef = ref(storage, `usuarios/documentos/${Date.now()}_${doc.name}`);
-        await uploadBytes(docRef, doc);
-        const docUrl = await getDownloadURL(docRef);
-        documentosUrls.push({
-          nome: doc.name,
-          url: docUrl,
-          tipo: doc.type,
-          tamanho: doc.size,
-        });
-      }
-
-      await addDoc(collection(db, 'users'), {
-        ...formData,
-        diplomaUrl,
-        documentosExtras: documentosUrls,
-        cadastradoPor: user.uid,
-        dataCadastro: serverTimestamp(),
-      });
-
-      setSuccess('Usuário cadastrado com sucesso!');
-      setFormData({ nome: '', email: '', cpf: '', dataNascimento: '', telefone: '', cargo: '', perfil: 'analista' });
-      setDiploma(null);
-      setDocumentosExtras([]);
-
-      const diplomaInput = document.getElementById('diploma');
-      const documentosInput = document.getElementById('documentos-extras');
-      if (diplomaInput) diplomaInput.value = '';
-      if (documentosInput) documentosInput.value = '';
-
-    } catch (err) {
-      console.error('Erro ao cadastrar usuário:', err);
-      setError('Falha ao cadastrar usuário. Por favor, tente novamente.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { hasPermission } = useUserRole() as { hasPermission: (requiredRole: string) => boolean };
 
   return (
     <ProtectedRoute>
-      {/* ...interface mantida como antes, sem alterações... */}
+      <div className="min-h-screen bg-gray-100">
+        <header className="bg-white shadow">
+          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h1 className="text-3xl font-bold text-gray-900">Cadastro de Usuário</h1>
+          </div>
+        </header>
+
+        <main>
+          <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div className="bg-white overflow-hidden shadow rounded-lg p-6">
+              {hasPermission('administrador') ? (
+                <p className="text-gray-700">
+                  O formulário de cadastro está em manutenção e será disponibilizado em breve.
+                </p>
+              ) : (
+                <p className="text-red-600">Você não tem permissão para cadastrar usuários.</p>
+              )}
+            </div>
+          </div>
+        </main>
+      </div>
     </ProtectedRoute>
   );
 }

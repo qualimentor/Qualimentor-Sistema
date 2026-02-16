@@ -1,5 +1,7 @@
 import { getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
@@ -11,10 +13,25 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID!,
 };
 
-// Initialize Firebase App (no SSR)
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const hasFirebaseConfig = Boolean(
+  firebaseConfig.apiKey &&
+    firebaseConfig.authDomain &&
+    firebaseConfig.projectId &&
+    firebaseConfig.storageBucket &&
+    firebaseConfig.messagingSenderId &&
+    firebaseConfig.appId
+);
 
-// Só inicializa auth no lado do cliente
-const auth = typeof window !== "undefined" ? getAuth(app) : null;
+// Initialize Firebase App (no SSR) only when config is available
+const app = hasFirebaseConfig
+  ? getApps().length === 0
+    ? initializeApp(firebaseConfig)
+    : getApps()[0]
+  : null;
 
-export { app, auth };
+// Só inicializa serviços no lado do cliente e se configuração estiver válida
+const auth = typeof window !== "undefined" && app ? getAuth(app) : null;
+const db = app ? getFirestore(app) : null;
+const storage = app ? getStorage(app) : null;
+
+export { app, auth, db, storage, hasFirebaseConfig };

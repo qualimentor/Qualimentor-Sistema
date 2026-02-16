@@ -2,16 +2,17 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-// Initialize OpenAI client - ONLY ON SERVER
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Use server-only variable
-});
-
 // GPT ID for Auditor-IA (optional)
 const AUDITOR_GPT_ID = process.env.GPT_AUDITOR_ID; // Server-only variable
 
 export async function POST(request: Request) {
   try {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: 'OPENAI_API_KEY não configurada no servidor.' }, { status: 500 });
+    }
+
+    const openai = new OpenAI({ apiKey });
     const { data } = await request.json();
 
     if (!data) {

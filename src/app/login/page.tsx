@@ -1,24 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { app } from "../../lib/firebase-client";
+import { FormEvent, useEffect, useState } from "react";
+import { Auth, signInWithEmailAndPassword } from "firebase/auth";
+import { auth as firebaseAuthClient, hasFirebaseConfig } from "../../lib/firebase-client";
 
 export default function LoginPage() {
-  const [auth, setAuth] = useState(null);
+  const [auth, setAuth] = useState<Auth | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const firebaseAuth = getAuth(app);
-      setAuth(firebaseAuth);
-    }
+    setAuth(firebaseAuthClient);
   }, []);
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!auth) return;
 
@@ -29,13 +26,17 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
       // Redirecionar para dashboard ou página inicial após login
       window.location.href = "/dashboard"; // Ajuste conforme suas rotas
-    } catch (err) {
+    } catch (err: unknown) {
       setError("Erro ao fazer login. Verifique seu email e senha.");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
+
+  if (!hasFirebaseConfig) {
+    return <div className="p-4 text-red-600">Firebase não configurado. Defina as variáveis NEXT_PUBLIC_FIREBASE_*.</div>;
+  }
 
   if (!auth) {
     return <div>Carregando...</div>;

@@ -6,13 +6,6 @@ const openai = new OpenAI({
   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
 });
 
-// GPT IDs for each specialized module
-const GPT_IDS = {
-  MENTOR_IA: process.env.NEXT_PUBLIC_GPT_MENTOR_ID || 'default',
-  INSIGHT_IA: process.env.NEXT_PUBLIC_GPT_INSIGHT_ID || 'default',
-  AUDITOR_IA: process.env.NEXT_PUBLIC_GPT_AUDITOR_ID || 'default'
-};
-
 /**
  * Analyze non-conformities using Mentor-IA GPT
  * @param {Object|string} data - Non-conformity data to analyze

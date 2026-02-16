@@ -1,19 +1,26 @@
 
 'use client';
 
-import { useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { useUserRole } from '@/context/UserRoleContext';
 // Remove direct AI helper import: import { analyzeAuditorIA } from '@/lib/ai-helpers';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db, storage } from '@/lib/firebase-client'; // Use client-side firebase config
+import { db, hasFirebaseConfig, storage } from '@/lib/firebase-client'; // Use client-side firebase config
 import { useAuth } from '@/context/AuthContext';
 
+type DocumentToAnalyze = {
+  name: string;
+  type: string;
+  description: string;
+  content: string;
+};
+
 export default function AuditorIAPage() {
-  const { user } = useAuth();
-  const { hasPermission } = useUserRole();
-  const [file, setFile] = useState(null);
+  const { user } = useAuth() as { user: { uid: string } | null };
+  const { hasPermission } = useUserRole() as { hasPermission: (requiredRole: string) => boolean };
+  const [file, setFile] = useState<File | null>(null);
   const [documentName, setDocumentName] = useState('');
   const [documentType, setDocumentType] = useState('');
   const [description, setDescription] = useState('');
@@ -22,7 +29,7 @@ export default function AuditorIAPage() {
   const [success, setSuccess] = useState('');
   
   // AI analysis states
-  const [documentToAnalyze, setDocumentToAnalyze] = useState({
+  const [documentToAnalyze, setDocumentToAnalyze] = useState<DocumentToAnalyze>({
     name: '',
     type: '',
     description: '',
@@ -32,13 +39,14 @@ export default function AuditorIAPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState('');
 
-  const handleFileChange = (e) => {
-    if (e.target.files[0]) {
-      setFile(e.target.files[0]);
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0] ?? null;
+    if (selectedFile) {
+      setFile(selectedFile);
     }
   };
 
-  const handleUpload = async (e) => {
+  const handleUpload = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (!user) {
@@ -47,6 +55,10 @@ export default function AuditorIAPage() {
     }
     if (!file) {
       setError('Por favor, selecione um arquivo para upload.');
+      return;
+    }
+    if (!db || !storage) {
+      setError('Firebase não configurado corretamente para upload.');
       return;
     }
     if (!documentName.trim()) {
@@ -89,10 +101,10 @@ export default function AuditorIAPage() {
       setDocumentName('');
       setDocumentType('');
       setDescription('');
-      const fileInput = document.getElementById('document-file');
+      const fileInput = document.getElementById('document-file') as HTMLInputElement | null;
       if (fileInput) fileInput.value = '';
 
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Erro ao fazer upload:', err);
       setError('Falha ao enviar documento. Verifique sua conexão e permissões do Firebase Storage.');
     } finally {
@@ -129,9 +141,9 @@ export default function AuditorIAPage() {
       const result = await response.json();
       setAnalysisResult(result.analysis);
 
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Error calling /api/auditor-ia:", err);
-      setAnalysisError(err.message || 'Erro ao analisar documento.');
+      setAnalysisError(err instanceof Error ? err.message : 'Erro ao analisar documento.');
     } finally {
       setAnalyzing(false);
     }
@@ -145,6 +157,11 @@ export default function AuditorIAPage() {
 
   return (
     <ProtectedRoute>
+      {!hasFirebaseConfig && (
+        <div className="mx-auto mt-4 max-w-3xl rounded-md border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-800">
+          Firebase não configurado. Recursos de upload ficarão indisponíveis até definir as variáveis NEXT_PUBLIC_FIREBASE_*.
+        </div>
+      )}
       <div className="min-h-screen bg-gray-100">
         {/* Header */}
         <header className="bg-white shadow">
@@ -229,7 +246,7 @@ export default function AuditorIAPage() {
                   
                   <div className="space-y-4 mb-6">
                     <p className="text-gray-600 text-sm">
-                      Após enviar um documento, clique em "Analisar" para obter uma análise de conformidade e sugestões.
+                      Após enviar um documento, clique em &quot;Analisar&quot; para obter uma análise de conformidade e sugestões.
                     </p>
                     
                     {/* Document info for analysis */}
@@ -271,4 +288,3 @@ export default function AuditorIAPage() {
     </ProtectedRoute>
   );
 }
-
