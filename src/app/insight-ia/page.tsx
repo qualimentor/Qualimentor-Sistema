@@ -3,7 +3,6 @@
 
 import { useState } from 'react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { useUserRole } from '@/context/UserRoleContext';
 // Remove direct AI helper import: import { analyzeInsightIA } from '@/lib/ai-helpers';
 
 export default function InsightIAPage() {
@@ -22,7 +21,7 @@ export default function InsightIAPage() {
       let parsedData;
       try {
         parsedData = JSON.parse(indicatorsData);
-      } catch (_) {
+      } catch {
         parsedData = indicatorsData; // Send as plain text if not valid JSON
       }
 
@@ -43,9 +42,9 @@ export default function InsightIAPage() {
       const result = await response.json();
       setAnalysisResult(result.analysis);
 
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Error calling /api/insight-ia:", err);
-      setError(err.message || 'Erro ao analisar indicadores.');
+      setError(err instanceof Error ? err.message : 'Erro ao analisar indicadores.');
     } finally {
       setAnalyzing(false);
     }
@@ -118,4 +117,3 @@ export default function InsightIAPage() {
     </ProtectedRoute>
   );
 }
-

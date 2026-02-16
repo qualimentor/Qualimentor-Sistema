@@ -1,149 +1,108 @@
-# Qualimentor - Sistema Integrado de Qualidade
+# QualiLab — Plataforma de Gestão da Qualidade para Laboratórios Clínicos
 
-Este é o repositório oficial do Sistema Integrado de Qualidade da Qualimentor, uma plataforma completa que unifica o site institucional e o sistema interno com módulos de IA para gestão da qualidade em laboratórios.
+O **QualiLab** é uma aplicação web moderna para gestão da qualidade laboratorial. A plataforma foi desenhada para suportar, de forma integrada, o **Controle Interno (CI)**, o **Controle Externo (CQE)** e a **Gestão Analítica**, com foco em segurança, multi-tenancy e escalabilidade.
+
+## Objetivos da Plataforma
+
+Com o QualiLab, os laboratórios podem:
+
+- Gerenciar o **Controle de Qualidade Interno (CI)**, com entrada de dados, gráficos de Levey-Jennings e regras de Westgard.
+- Gerenciar o **Controle de Qualidade Externo (CQE)** (ensaios de proficiência), com comparação entre laboratório e grupo de pares.
+- Realizar **Gestão Analítica** completa, monitorando indicadores como CV%, Bias% e Erro Total (ETa).
+- Obter uma **Visão Sistêmica** da qualidade por meio de dashboards com priorização de analitos críticos.
+- Configurar de forma flexível setores, equipamentos, controles e analitos.
+
+## Stack Tecnológica
+
+| Componente | Tecnologia / Padrão |
+| --- | --- |
+| Framework Frontend | Next.js 15 (App Router) |
+| Linguagem | TypeScript (frontend e backend) |
+| UI & Estilo | Tailwind CSS + shadcn/ui |
+| Base de Dados | Cloud Firestore (NoSQL, multi-tenant) |
+| Autenticação | Firebase Authentication (Email/Senha) + Session Cookies |
+| Lógica de Backend | Firebase Cloud Functions (TypeScript) |
+| Inteligência Artificial | Genkit (Google AI) |
+| Testes | Playwright (E2E) + Vitest (regras do Firestore) |
+| CI/CD | GitHub Actions + Firebase Hosting |
 
 ## Estrutura do Projeto
 
-O projeto é construído com Next.js 15, React 18, Tailwind CSS e Firebase, seguindo as melhores práticas de desenvolvimento:
+A arquitetura foi organizada para garantir separação clara entre responsabilidades de cliente, servidor e domínio de negócio.
 
-```
-qualimentor-novo/
-├── public/                  # Arquivos estáticos
-│   └── images/              # Imagens do site e sistema
-├── src/
-│   ├── app/                 # Páginas da aplicação (Next.js App Router)
-│   │   ├── home/            # Site público - Página inicial
-│   │   ├── sobre/           # Site público - Sobre nós
-│   │   ├── cursos/          # Site público - Cursos oferecidos
-│   │   ├── contato/         # Site público - Formulário de contato
-│   │   ├── login/           # Página de autenticação
-│   │   ├── dashboard/       # Sistema interno - Dashboard principal
-│   │   ├── mentor-ia/       # Sistema interno - Módulo Mentor-IA
-│   │   ├── insight-ia/      # Sistema interno - Módulo Insight-IA
-│   │   ├── auditor-ia/      # Sistema interno - Módulo Auditor-IA
-│   │   └── cadastro-usuario/ # Sistema interno - Cadastro de usuários
-│   ├── components/          # Componentes reutilizáveis
-│   │   ├── auth/            # Componentes de autenticação
-│   │   ├── layout/          # Componentes de layout (Header, Footer)
-│   │   └── ui/              # Componentes de interface
-│   ├── context/             # Contextos React (Auth, UserRole)
-│   ├── hooks/               # Hooks personalizados
-│   └── lib/                 # Utilitários e configurações
-│       ├── firebase.js      # Configuração do Firebase
-│       └── ai-helpers.js    # Funções de integração com IA (Preparado para GPT Team)
-```
+### `src/app/` — Núcleo da aplicação Next.js
 
-## Tecnologias Utilizadas
+- `/` redireciona para login.
+- `/inicio` página de login pública.
+- `/gestao-sistemica` dashboard principal autenticado.
+- `/internal-qc`, `/external-qc`, etc. para módulos funcionais.
+- `src/app/api/` contém rotas de API (ex.: login de sessão, health check), usando runtime `nodejs` quando há dependência de `firebase-admin`.
 
-- **Frontend**: Next.js 15, React 18, Tailwind CSS
-- **Backend**: Firebase (Authentication, Firestore, Storage)
-- **Inteligência Artificial**: OpenAI API (Preparado para GPT Team)
-- **Deploy**: Vercel
+### `src/lib/` — Lógica de negócio e utilitários
 
-## Módulos de IA (GPT Team)
+- `types.ts`: contratos e interfaces centrais.
+- `qc-engine.ts`: cálculos estatísticos e avaliação de regras de Westgard.
+- `quality-specifications.ts`: metas analíticas (CV, Bias, ETa) por analito.
+- `server/firebaseAdmin.ts`: ponto único de inicialização do SDK Admin (server-only).
 
-O sistema está preparado para usar GPTs personalizados do GPT Team para cada módulo:
+### `src/firebase/` — Integração Firebase no cliente
 
-1. **Mentor-IA**: Análise de não conformidades e eventos adversos (ISO 15189, RDC 786/2023).
-2. **Insight-IA**: Análise de indicadores de qualidade, tendências e recomendações.
-3. **Auditor-IA**: Verificação automática de documentos e conformidade normativa.
+- `config.ts`: configuração pública do Firebase.
+- `provider.tsx` e `client-provider.tsx`: inicialização e estado dos serviços Firebase no cliente.
+- `auth/use-user.tsx`: hook de estado do usuário autenticado.
+- `firestore/`: hooks reativos (`useCollection`, `useDoc`).
+- `errors.ts` e `error-emitter.ts`: tratamento de erros de permissão do Firestore para facilitar desenvolvimento e diagnóstico.
 
-## Requisitos
+### `src/features/` — Funcionalidades modulares
 
-- Node.js 18.0.0 ou superior
-- NPM 9.0.0 ou superior
-- Conta Firebase
-- Conta OpenAI com acesso ao GPT Team
-- Chave de API da OpenAI
-- IDs dos GPTs personalizados (Mentor-IA, Insight-IA, Auditor-IA)
+- `explorer/`: lógica e componentes do Explorador Sistêmico.
+- `risk/`: cálculo e avaliação de risco analítico.
 
-## Instalação
+### `functions/` — Backend com Cloud Functions
 
-1. Clone o repositório:
-```bash
-git clone https://github.com/sua-organizacao/qualimentor-novo.git
-cd qualimentor-novo
-```
+- `src/index.ts`: criação de empresas, convites, troca de empresa ativa e criação de sessão (`session cookie`).
 
-2. Instale as dependências:
-```bash
-npm install
-```
+### `middleware.ts` — Proteção de rotas no Edge Runtime
 
-3. Configure as variáveis de ambiente:
-   - Crie um arquivo `.env.local` na raiz do projeto baseado no `.env.local.example`
-   - Preencha com suas credenciais do Firebase, chave da API OpenAI e os IDs dos seus GPTs personalizados:
-     ```
-     # Firebase Config
-     NEXT_PUBLIC_FIREBASE_API_KEY=...
-     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
-     NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
-     NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
-     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
-     NEXT_PUBLIC_FIREBASE_APP_ID=...
-     
-     # OpenAI Config
-     NEXT_PUBLIC_OPENAI_API_KEY=sk-...
-     
-     # GPT Team IDs (Opcional, se não preenchido usará modelo padrão)
-     NEXT_PUBLIC_GPT_MENTOR_ID=g-... 
-     NEXT_PUBLIC_GPT_INSIGHT_ID=g-...
-     NEXT_PUBLIC_GPT_AUDITOR_ID=g-...
-     ```
+- Verifica apenas presença do cookie `__session`.
+- Redireciona para `/inicio` quando não autenticado.
+- Não importa `firebase-admin` (mantendo middleware leve e compatível com edge runtime).
 
-4. Execute o servidor de desenvolvimento:
-```bash
-npm run dev
-```
+## Fluxo de Autenticação e Multi-Tenancy
 
-5. Acesse http://localhost:3000 no seu navegador
+1. Usuário realiza login em `/inicio`.
+2. Cliente envia `idToken` para `POST /api/session/login`.
+3. API valida token com `firebase-admin` e cria cookie seguro `__session`.
+4. Middleware protege rotas verificando presença do cookie.
+5. Cloud Functions gerenciam empresas e vínculo de usuários, assegurando isolamento entre tenants.
 
-## Build e Deploy
+## Principais Módulos
 
-### Build Local
+### Controle Interno (CI)
 
-```bash
-npm run build
-npm start
-```
+- Dashboard por setor e analito.
+- Entrada de dados individual ou em lote.
+- Gráficos de Levey-Jennings em tempo real.
+- Identificação de violações de Westgard.
+- Assistente com IA (Genkit) para interpretação de violações e ações corretivas.
 
-### Deploy na Vercel
+### Configurações
 
-1. Conecte seu repositório à Vercel
-2. Configure as variáveis de ambiente na interface da Vercel (incluindo as credenciais do Firebase, OpenAI API Key e os GPT IDs)
-3. A Vercel detectará automaticamente o projeto Next.js e fará o deploy.
+- Gestão de setores, equipamentos e controles.
+- Extração assistida por IA de dados de bula em PDF para preenchimento automático de média e desvio padrão.
 
-## Configuração do Firebase
+### Gestão Analítica e Risco
 
-- **Authentication**: Autenticação de usuários
-- **Firestore**: Banco de dados (usuários, não conformidades, indicadores, documentos)
-- **Storage**: Armazenamento de arquivos
+- Explorador Sistêmico com ordenação por score de risco.
+- Dashboards dedicados a desempenho de CI (CV%) e CQE (Bias%).
+- Cálculo automático de Erro Total com dados combinados CI + CQE.
 
-## Integração com GPT Team
+## Estado Atual do Projeto
 
-O arquivo `src/lib/ai-helpers.js` está preparado para usar os GPTs personalizados. Certifique-se de que os IDs dos GPTs (`NEXT_PUBLIC_GPT_MENTOR_ID`, `NEXT_PUBLIC_GPT_INSIGHT_ID`, `NEXT_PUBLIC_GPT_AUDITOR_ID`) estão configurados no seu arquivo `.env.local` e nas variáveis de ambiente da Vercel. Se os IDs não forem fornecidos, o sistema usará o modelo GPT-4 Turbo padrão.
+O sistema encontra-se em fase robusta de desenvolvimento, com os principais desafios arquiteturais já endereçados:
 
-*Observação: A API oficial para chamar GPTs específicos ainda pode estar em desenvolvimento pela OpenAI. O código atual usa a API de Chat Completions padrão, mas está estruturado para adicionar o parâmetro `gpt_id` facilmente quando disponível.* 
+- separação clara cliente/servidor,
+- autenticação com sessão segura,
+- multi-tenancy consistente,
+- base de código modular e pronta para expansão de funcionalidades.
 
-## Estrutura de Permissões
-
-- **Administrador**: Acesso completo
-- **Gestor**: Acesso ao dashboard e módulos (sem cadastro de usuários)
-- **Analista**: Acesso ao dashboard, Mentor-IA e Insight-IA
-- **Auditor**: Acesso ao dashboard e Auditor-IA
-
-## Contribuição
-
-1. Fork o repositório
-2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
-3. Commit suas alterações (`git commit -m 'Adiciona nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
-
-## Licença
-
-Propriedade da Qualimentor.
-
-## Contato
-
-[qualimentor.com.br](https://qualimentor.com.br)
